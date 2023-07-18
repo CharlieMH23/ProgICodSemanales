@@ -29,6 +29,7 @@ public class Geometria {
 
         // Imprimir la mitad superior del rombo
         for (int i = 0; i < altura / 2 + 1; i++) {
+            
             for (int j = 0; j < espacios; j++) {
                 System.out.print(" ");
             }
