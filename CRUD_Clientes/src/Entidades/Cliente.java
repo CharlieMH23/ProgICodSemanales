@@ -4,11 +4,15 @@
  */
 package Entidades;
 
+import javax.swing.ComboBoxModel;
+
 /**
  *
  * @author Usuario
  */
 public class Cliente {
+
+   
 
     public Cliente() {
     }
@@ -65,8 +69,8 @@ public class Cliente {
         return Genero;
     }
 
-    public void setGenero(char Genero) {
-        this.Genero = Genero;
+    public void setGenero(int Genero) {
+        this.Genero = (char) Genero;
     }
 
     public boolean isEstado() {

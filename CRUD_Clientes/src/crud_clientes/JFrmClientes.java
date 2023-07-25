@@ -21,6 +21,7 @@ public class JFrmClientes extends javax.swing.JFrame {
     DefaultTableModel modeloTablaClientes;
     ArrayList<Cliente> ListadoClientes;
     int Contador;
+    int indiceClienteSeleccionado = -1;
     //</editor-fold>
     
     
@@ -36,11 +37,44 @@ public class JFrmClientes extends javax.swing.JFrame {
     
     // <editor-fold defaultstate="collapsed" desc="Metodos locales">
     
-    void EliminarCliente(){
+    void ModificarCliente(){
+    int filaSeleccionada = jTblClientes.getSelectedRow();
+    if (filaSeleccionada >= 0){
+        String idenficacion = (String)modeloTablaClientes.getValueAt(filaSeleccionada, 0);
+
+        int posicion = -1;
+
+        for (int i = 0; i < ListadoClientes.size(); i++) {
+            if (ListadoClientes.get(i).getIdentificacion().equals(idenficacion)){
+                posicion = i;
+                break;
+            }
+        }
+
+        if (posicion >= 0){
+            Cliente aux = ListadoClientes.get(posicion);
+
+            aux.setIdentificacion(txtIdentificacion.getText());
+            aux.setNombre(txtNombre.getText());
+            aux.setPrimerApellido(txtApe1.getText());
+            aux.setSegundoApellido(txtApe2.getText());
+            char Genero = cmbGenero.getSelectedIndex() == 0 ? 'M' : 'F';
+            aux.setGenero(Genero);
+            boolean Estado = rbnActivo.isSelected();
+            aux.setEstado(Estado);
+
+            modeloTablaClientes.setValueAt(aux.getIdentificacion(), filaSeleccionada, 0);
+            modeloTablaClientes.setValueAt(aux.getNombre()+" "+aux.getPrimerApellido()+" "+aux.getSegundoApellido(), filaSeleccionada, 1);
+            modeloTablaClientes.setValueAt(aux.getGenero(), filaSeleccionada, 2);
+            modeloTablaClientes.setValueAt(aux.isEstado() ? "Activo" : "Inactivo", filaSeleccionada, 3);
+        }
+    }
+}
+
+
+  void EliminarCliente(){
       
         int filaSeleccionada = jTblClientes.getSelectedRow();
-        
-        //casteo / casting - conversion de un tipo a otro tipo
         String idenficacion = (String)modeloTablaClientes.getValueAt(filaSeleccionada, 0);
         
         int posicion = -1;
@@ -61,6 +95,7 @@ public class JFrmClientes extends javax.swing.JFrame {
         
         
     }
+
     
      void RegistarCliente(){
         
@@ -175,6 +210,7 @@ public class JFrmClientes extends javax.swing.JFrame {
 
         jLabel1.setText("Identificacion");
 
+        txtIdentificacion.setEnabled(false);
         txtIdentificacion.setName(""); // NOI18N
 
         jLabel2.setText("Nombre");
@@ -198,10 +234,13 @@ public class JFrmClientes extends javax.swing.JFrame {
 
         rbnInactivo.setText("Inactivo");
 
-        btnModificar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Usuario\\Downloads\\5402373_write_modify_tool_edit_pen_icon.png")); // NOI18N
         btnModificar.setText("Modificar");
+        btnModificar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModificarActionPerformed(evt);
+            }
+        });
 
-        btnRegistrar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Usuario\\Downloads\\285657_floppy_guardar_save_icon (1).png")); // NOI18N
         btnRegistrar.setText("Registrar");
         btnRegistrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -209,7 +248,6 @@ public class JFrmClientes extends javax.swing.JFrame {
             }
         });
 
-        btnEliminar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Usuario\\Downloads\\3669361_delete_ic_icon.png")); // NOI18N
         btnEliminar.setText("Eliminar");
         btnEliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -313,6 +351,11 @@ public class JFrmClientes extends javax.swing.JFrame {
                 "Identificacion", "Cliente", "Genero", "Estado"
             }
         ));
+        jTblClientes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTblClientesMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTblClientes);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -371,6 +414,42 @@ public class JFrmClientes extends javax.swing.JFrame {
         InicializarModeloTabla();
         CargarJTabla();
     }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        ModificarCliente();
+        InicializarModeloTabla();
+        CargarJTabla();
+    }//GEN-LAST:event_btnModificarActionPerformed
+
+    private void jTblClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTblClientesMouseClicked
+ int filaSeleccionada = jTblClientes.getSelectedRow();
+        String idenficacion = (String)modeloTablaClientes.getValueAt(filaSeleccionada, 0);
+        
+        int posicion = -1;
+        
+        for (int i = 0; i < ListadoClientes.size(); i++) {
+            
+            if (ListadoClientes.get(i).getIdentificacion().equals(idenficacion)){
+                posicion = i;
+                break;
+            }
+                
+        }
+        
+        if (posicion >= 0){
+            Cliente aux = ListadoClientes.get(posicion);
+            txtIdentificacion.setText(aux.getIdentificacion());
+            txtNombre.setText(aux.getNombre());
+            txtApe1.setText(aux.getPrimerApellido());
+            txtApe2.setText(aux.getSegundoApellido());
+            int indiceGenero = aux.getGenero() == 'M'? 0 : 1; // M = 0 y F = 1
+            cmbGenero.setSelectedIndex(indiceGenero);
+            boolean estaActivo = aux.isEstado();
+            rbnActivo.setSelected(estaActivo);
+            rbnInactivo.setSelected(!estaActivo);
+            
+            
+        }    }//GEN-LAST:event_jTblClientesMouseClicked
 
     /**
      * @param args the command line arguments
