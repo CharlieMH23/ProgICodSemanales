@@ -22,7 +22,7 @@ public class Main {
     
     public static void main(String[] args) {
         // TODO code application logic here
-        ListadoClientes = new ArrayList<Cliente>();
+        ListadoClientes = new ArrayList<>();
         FrmPrincipal oFrmPrincipal = new FrmPrincipal();
         oFrmPrincipal.setVisible(true);
         oFrmPrincipal.setExtendedState(JFrame.MAXIMIZED_BOTH);

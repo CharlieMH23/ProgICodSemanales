@@ -15,65 +15,46 @@ import java.util.stream.Collectors;
  */
 public class JFrmVentas extends javax.swing.JInternalFrame {
 
-    /**
-     * Creates new form JFrmVentas
-     */
-    
-    DefaultListModel listaControlCliente;
-    DefaultListModel listaClientesFiltrados;
-    
-    public JFrmVentas() {
-        initComponents();
-        listaControlCliente = new DefaultListModel();
-        LstClientes.setModel(listaControlCliente);
-        
-        listaClientesFiltrados = new DefaultListModel();
-        LstClientesFiltrados.setModel(listaClientesFiltrados);
-        
-    }
-    
-    void CargaClientes(){
-        
+
+    private void registrarVenta() {
         try {
-            
-            for (Cliente oCliente : Main.ListadoClientes) {
-                String IdeCliente = oCliente.getIdeCliente();
-                String NomCliente = oCliente.getNomCliente();
-                listaControlCliente.addElement(IdeCliente+" "+NomCliente);
-                
-            }
-            
-            
+            // Aquí va la lógica para registrar la venta utilizando los valores ingresados por el usuario.
+            // Por ejemplo:
+            String identificacionCliente = TxtIdentificacionCliente.getText();
+             String nombreCliente = TxtNombreCliente.getText();
+             String articulo = TxtArticulo.getText();
+             double cantidad = Double.parseDouble(TxtCantidad.getText());
+             double totalVenta = cantidad * obtenerPrecioUnitarioDelProductoSeleccionado();
+             guardarVentaEnBaseDeDatos(identificacionCliente, nombreCliente, articulo, cantidad, totalVenta);
+
+            JOptionPane.showMessageDialog(null, "Venta registrada con éxito");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Error registro cliente "+
-                                        e.getMessage()+" "+
-                                        e.getStackTrace()[0].toString());
+            JOptionPane.showMessageDialog(null, "Error al registrar la venta: " + e.getMessage());
         }
-        
     }
+
+    private void mostrarVentasMayores500() {
+        try {
+            // Aquí va la lógica para obtener las ventas mayores a $500 desde la base de datos o donde las tengas almacenadas.
+            // Por ejemplo:
+            ArrayList<Venta> ventasMayores500 = obtenerVentasMayores500();
+             DefaultListModel listaVentasMayores500 = new DefaultListModel();
+             for (Venta venta : ventasMayores500) {
+                 listaVentasMayores500.addElement(venta.getInformacionVenta());
+             }
+             LstVentasMayores500.setModel(listaVentasMayores500);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al obtener las ventas mayores a $500: " + e.getMessage());
+        }
+    }
+
+    // ... Otros métodos y eventos ...
+
+
+
     
-    void CargarClientesFiltrados(){
-         try {
-            
-            ArrayList<Cliente> ListaFiltrada = (ArrayList<Cliente>)Main.ListadoClientes.stream()
-                                                .filter(cliente -> cliente.getTipoCliente() == 'V' )
-                                                .collect(Collectors.toList());
-                                                //.collect(Collectors.toList())
-             
-            for (Cliente oCliente : ListaFiltrada) {
-                String IdeCliente = oCliente.getIdeCliente();
-                String NomCliente = oCliente.getNomCliente();                
-                listaClientesFiltrados.addElement(IdeCliente+" "+NomCliente);
-                
-            }
-            
-            
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Error registro cliente "+
-                                        e.getMessage()+" "+
-                                        e.getStackTrace()[0].toString());
-        }
-    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -89,6 +70,19 @@ public class JFrmVentas extends javax.swing.JInternalFrame {
         LstClientes = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         LstClientesFiltrados = new javax.swing.JList<>();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        TxtIdentificacionCliente = new javax.swing.JTextField();
+        TxtNombreCliente = new javax.swing.JTextField();
+        TxtArticulo = new javax.swing.JTextField();
+        TxtCantidad = new javax.swing.JTextField();
+        TxttotalVenta = new javax.swing.JTextField();
+        BtnRegistrarVenta = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        LstVentasMayores500 = new javax.swing.JList<>();
 
         setClosable(true);
         setTitle("Ventas");
@@ -100,9 +94,49 @@ public class JFrmVentas extends javax.swing.JInternalFrame {
             }
         });
 
+        LstClientes.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Identificación | Nombre Completo | Articulo | Cantidad | Total Venta" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
         jScrollPane1.setViewportView(LstClientes);
 
+        LstClientesFiltrados.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Identificación | Nombre Completo | Articulo | Cantidad | Total Venta" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
         jScrollPane2.setViewportView(LstClientesFiltrados);
+
+        jLabel1.setText("Identificación:");
+
+        jLabel2.setText("Nombre Completo:");
+
+        jLabel3.setText("Articulo:");
+
+        jLabel4.setText("Cantidad:");
+
+        jLabel5.setText("Total Venta:");
+
+        TxtCantidad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TxtCantidadActionPerformed(evt);
+            }
+        });
+
+        BtnRegistrarVenta.setText("Registrar Venta");
+        BtnRegistrarVenta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BtnRegistrarVentaActionPerformed(evt);
+            }
+        });
+
+        LstVentasMayores500.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Identificación | Nombre Completo | Articulo | Cantidad | Total Venta" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane3.setViewportView(LstVentasMayores500);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -111,21 +145,81 @@ public class JFrmVentas extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE)
                     .addComponent(BtnVerClientes)
+                    .addComponent(jScrollPane1)
                     .addComponent(jScrollPane2))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(BtnRegistrarVenta)
+                        .addGap(112, 112, 112))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(62, 62, 62)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(jLabel3)
+                                                .addComponent(jLabel4)
+                                                .addComponent(jLabel5))
+                                            .addGap(59, 59, 59))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                            .addComponent(jLabel2)
+                                            .addGap(18, 18, 18)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addGap(46, 46, 46)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(TxtIdentificacionCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(TxtNombreCliente)
+                                        .addComponent(TxtArticulo)
+                                        .addComponent(TxtCantidad)
+                                        .addComponent(TxttotalVenta, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 368, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addComponent(BtnVerClientes)
-                .addGap(28, 28, 28)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(34, 34, 34)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(BtnVerClientes)
+                        .addGap(25, 25, 25)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(60, 60, 60)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1)
+                            .addComponent(TxtIdentificacionCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(TxtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(TxtArticulo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(TxtCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(TxttotalVenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(BtnRegistrarVenta)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -136,12 +230,53 @@ public class JFrmVentas extends javax.swing.JInternalFrame {
         CargarClientesFiltrados();
     }//GEN-LAST:event_BtnVerClientesActionPerformed
 
+    private void BtnRegistrarVentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnRegistrarVentaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BtnRegistrarVentaActionPerformed
+
+    private void TxtCantidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TxtCantidadActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TxtCantidadActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BtnRegistrarVenta;
     private javax.swing.JButton BtnVerClientes;
     private javax.swing.JList<String> LstClientes;
     private javax.swing.JList<String> LstClientesFiltrados;
+    private javax.swing.JList<String> LstVentasMayores500;
+    private javax.swing.JTextField TxtArticulo;
+    private javax.swing.JTextField TxtCantidad;
+    private javax.swing.JTextField TxtIdentificacionCliente;
+    private javax.swing.JTextField TxtNombreCliente;
+    private javax.swing.JTextField TxttotalVenta;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     // End of variables declaration//GEN-END:variables
+
+    private void CargaClientes() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private void CargarClientesFiltrados() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private ArrayList<Venta> obtenerVentasMayores500() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private void guardarVentaEnBaseDeDatos(String identificacionCliente, String nombreCliente, String articulo, double cantidad, double totalVenta) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private double obtenerPrecioUnitarioDelProductoSeleccionado() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
